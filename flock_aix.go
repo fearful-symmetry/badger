@@ -2,7 +2,10 @@
 
 package badger
 
-import "golang.org/x/sys/unix"
+import (
+	"golang.org/x/sys/unix"
+	"io"
+)
 
 /*
  * Copyright 2017 Dgraph Labs, Inc. and Contributors
