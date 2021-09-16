@@ -25,7 +25,6 @@ import (
 	"path/filepath"
 
 	"github.com/dgraph-io/badger/v3/y"
-	"golang.org/x/sys/unix"
 )
 
 // directoryLockGuard holds a lock on a directory and a pid file inside.  The pid file isn't part
@@ -54,12 +53,8 @@ func acquireDirectoryLock(dirPath string, pidFileName string, readOnly bool) (
 	if err != nil {
 		return nil, y.Wrapf(err, "cannot open directory %q", dirPath)
 	}
-	opts := unix.LOCK_EX | unix.LOCK_NB
-	if readOnly {
-		opts = unix.LOCK_SH | unix.LOCK_NB
-	}
 
-	err = unix.Flock(int(f.Fd()), opts)
+	err = flock(f.Fd(), readOnly)
 	if err != nil {
 		f.Close()
 		return nil, y.Wrapf(err,
