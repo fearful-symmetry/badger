@@ -21,13 +21,13 @@ import "golang.org/x/sys/unix"
  */
 
 func flock(fd uintptr, readOnly bool) error {
-	opts := unix.F_WRLCK | F_RDLCK
+	opts := unix.F_WRLCK | unix.F_RDLCK
 	if readOnly {
-		opts = F_RDLCK
+		opts = unix.F_RDLCK
 	}
 	for {
-		err := unix.FcntlFlock(fd, int(cmd), &unix.Flock_t{
-			Type:   int16(lt),
+		err := unix.FcntlFlock(fd, int(unix.F_SETLK), &unix.Flock_t{
+			Type:   int16(opts),
 			Whence: io.SeekStart,
 			Start:  0,
 			Len:    0, // All bytes.
