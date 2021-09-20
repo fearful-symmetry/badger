@@ -23,6 +23,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/dgraph-io/badger/v3/y"
 )
@@ -93,7 +94,13 @@ func (guard *directoryLockGuard) release() error {
 }
 
 // openDir opens a directory for syncing.
-func openDir(path string) (*os.File, error) { return os.Open(path) }
+func openDir(path string) (*os.File, error) {
+	// on AIX, fsync will fail under Open(), as the file is opened in read-only mode and the underlying pointer is nil.
+	if runtime.GOOS == "aix" {
+		return os.OpenFile(path, os.O_RDWR, 0)
+	}
+	return os.Open(path)
+}
 
 // When you create or delete a file, you have to ensure the directory entry for the file is synced
 // in order to guarantee the file is visible (if the system crashes). (See the man page for fsync,
